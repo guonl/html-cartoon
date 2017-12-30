@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html >
+<head>
+<meta charset="UTF-8">
+<title>css3随机生成五角星背景动画特效演示_大头网</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+<!-- 代码 开始 -->
+<css-doodle grid="8">
+:doodle {
+size: 100vmax;
+background: #673AB7;
+overflow: hidden;
+}
+clip-path: @shape(bud, 5);
+background: hsla(
+calc(300 + 3 * @index()), 75%, 70%, @rand(.8) 
+);
+transition: .2s ease @rand(300ms);
+transform:
+scale(@rand(.2, 1.5))
+translate3d(
+  @rand(-50%, 50%),
+  @rand(-50%, 50%),
+  0
+);
+</css-doodle>
+
+<script src='js/css-doodle.min.js'></script>
+<script  src="js/index.js"></script>
+<!-- 代码 结束 -->
+</body>
+</html>
