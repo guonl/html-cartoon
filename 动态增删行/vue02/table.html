@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Title</title>
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+</head>
+<body>
+<div class="container" id="container">
+<br />
+<form class="form-inline">
+<button type="button" class="btn btn-primary" v-on:click="add()">新增</button>
+<div class="form-group" style="float: right">
+<label>搜索</label>
+<input type="text" class="form-control" v-model="search" v-on:input="searchFn" placeholder="请输入搜索关键字">
+</div>
+</form>
+<hr />
+<table class="table table-bordered">
+<thead>
+<tr>
+<th>ID</th>
+<th>First Name</th>
+<th>Last Name</th>
+<th>Username</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr v-for="(item,index) in cloneTableDatas">
+<td>{{ item.id }}</td>
+<td>{{ item.firstName }}</td>
+<td>{{ item.lastName }}</td>
+<td>{{ item.userName }}</td>
+<td>
+<button type="button" class="btn btn-default" v-on:click="edit(index)">编辑</button>
+<button type="button" class="btn btn-danger" v-on:click="del(index)">删除</button>
+</td>
+</tr>
+</tbody>
+</table>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="addModal">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title">信息</h4>
+</div>
+<div class="modal-body">
+<form>
+<div class="form-group">
+<label>First Name</label>
+<input type="text" name="first" class="form-control" v-model="tableData.firstName">
+</div>
+<div class="form-group">
+<label>Last Name</label>
+<input type="text" name="last" class="form-control" v-model="tableData.lastName">
+</div>
+<div class="form-group">
+<label>Username</label>
+<input type="text" name="username" class="form-control" v-model="tableData.userName">
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+<button type="button" class="btn btn-primary" v-on:click="addSubForm">提交</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="editModal">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title">信息</h4>
+</div>
+<div class="modal-body">
+<form>
+<div class="form-group">
+<label>First Name</label>
+<input type="text" class="form-control" v-model="selectedlist.firstName">
+</div>
+<div class="form-group">
+<label>Last Name</label>
+<input type="text" class="form-control" v-model="selectedlist.lastName">
+</div>
+<div class="form-group">
+<label>Username</label>
+<input type="text" class="form-control" v-model="selectedlist.userName">
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+<button type="button" class="btn btn-primary" v-on:click="editSubForm">提交</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+
+
+    var app=new Vue({
+        el:"#container",
+        data:{
+            selected: -1,
+            selectedlist: { },
+            tableData:{"id":0,"firstName":"","lastName":"","userName":""},
+            tableDatas:[
+                {"id":1,"firstName":"safsag","lastName":"vgsdf","userName":"dfhdf"},
+                {"id":2,"firstName":"53235","lastName":"35325","userName":"3523"},
+                {"id":3,"firstName":"fdhdf","lastName":"436","userName":"fdn46"},
+                {"id":4,"firstName":"fdh","lastName":"46","userName":"hfd"}
+            ],
+            cloneTableDatas:[ ],
+            search : ""
+        },
+        //在实例被创建之后被调用
+        created: function () {
+            this.getShowData(this.tableDatas);
+        },
+        methods: {
+            // 获取需要渲染到页面中的数据
+            getShowData:function(arr) {
+                this.cloneTableDatas = JSON.parse(JSON.stringify(arr));
+            },
+            //新增
+            add: function () {
+                $('#addModal').modal('show');
+            },
+            //提交新增
+            addSubForm:function(){
+                this.tableData.id = this.tableDatas.length + 1;
+                this.tableDatas.push(this.tableData);
+                this.getShowData(this.tableDatas);
+                this.tableData = { };
+                $('#addModal').modal('hide');
+            },
+            //编辑
+            edit: function (index) {
+                $('#editModal').modal('show');
+                this.selected = index;
+                this.selectedlist = JSON.parse(JSON.stringify(this.tableDatas))[index];
+            },
+            //提交编辑
+            editSubForm:function() {
+                Vue.set(this.tableDatas, this.selected, this.selectedlist);
+                this.getShowData(this.tableDatas);
+                $('#editModal').modal('hide');
+            },
+            //删除
+            del: function (index) {
+                this.tableDatas.splice(index, 1);
+                this.getShowData(this.tableDatas);
+            },
+            //查询
+            searchFn:function (e) {
+                var key=e.target.value;
+                //查询firstName列
+                if(key){
+                    var searchArray=[];
+                    this.tableDatas.forEach(function (item) {
+                        if(item.firstName.indexOf(key)>-1){
+                            searchArray.push(item);
+                        }
+                    });
+                    this.getShowData(searchArray);
+                }else{
+                    this.getShowData(this.tableDatas);
+                }
+            }
+
+        }
+    })
+
+
+</script>
+</body>
+</html>
